@@ -9,6 +9,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["ultrastar", "parser", "karaoke"]
 homepage = "https://github.com/randompersona1/ultrastarParser"
+packages = [{include = "ultrastarWebserver"}]
 
 [tool.poetry.dependencies]
 python = ">=3.5"
