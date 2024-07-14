@@ -1,5 +1,7 @@
 class UltraStarFile:
-    
+    '''
+    Represents an UltraStar file. 
+    '''
     def __init__(self, path: str, file_encoding: str = 'utf-8') -> None:
         self.path = path
         self.file_encoding = file_encoding
@@ -46,6 +48,12 @@ class UltraStarFile:
         Removes the attribute from the file. Currently not implemented.
         '''
         raise NotImplementedError('This method has not been implemented yet.')
+    
+    def mp3_path(self) -> str:
+        '''
+        Returns the path to the MP3 file associated with the UltraStar file.
+        '''
+        return self.get_attribute('#MP3')
     
     def __str__(self) -> str:
         return self.path
