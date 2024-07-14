@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "ultrastarParser"
+version = "0.1.0"
+description = "Parser for Ultrastar text files."
+authors = [
+    "randompersona1 <74961116+randompersona1@users.noreply.github.com>"
+]
+readme = "README.md"
+license = "MIT"
+keywords = ["ultrastar", "parser", "karaoke"]
+homepage = "https://github.com/randompersona1/ultrastarParser"
+
+[tool.poetry.dependencies]
+python = ">=3.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
