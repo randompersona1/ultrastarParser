@@ -52,9 +52,48 @@ class UltraStarFile:
 
     def reorder_auto(self) -> None:
         '''
-        Automatically reorders the attributes in the file. Currently not implemented.
+        Automatically reorders the attributes in the file. Uses reorder_attribute.
         '''
-        raise NotImplementedError('This method has not been implemented yet.')
+        # Perfect order according to https://usdx.eu/format/
+        usdx_order = [
+            '#VERSION',
+            '#TITLE',
+            '#ARTIST',
+            '#MP3',
+            '#AUDIO',
+            '#BPM',
+            '#GAP',
+            '#COVER',
+            '#BACKGROUND',
+            '#VIDEO',
+            '#VIDEOGAP',
+            '#VOCALS',
+            '#INSTRUMENTAL'
+            '#GENRE',
+            '#TAGS',
+            '#EDITION',
+            '#CREATOR',
+            '#LANGUAGE',
+            '#YEAR',
+            '#START',
+            '#END',
+            '#PREVIEWSTART',
+            '#MEDLEYSTARTBEAT',
+            '#MEDLEYENDBEAT',
+            '#CALCMEDLEY',
+            '#P1',
+            '#P2',
+            '#PROVIDEDBY',
+            '#COMMENT',
+        ]
+
+        file_line: int = 0
+        order_index: int = 0
+        for order_index in range(len(usdx_order)):
+            if usdx_order[order_index] in self.attributes.keys():
+                self.reorder_attribute(list(self.attributes.keys()).index(usdx_order[order_index]), file_line)
+                file_line += 1
+
 
     def reorder_attribute(self, old_index: int, new_index: int) -> None:
         '''
@@ -65,7 +104,7 @@ class UltraStarFile:
         if old_index < 0 or old_index >= len(self.attributes):
             raise ValueError('Invalid old_index.')
         if new_index < 0 or new_index >= len(self.attributes)+1:
-            raise ValueError('Invalid new_index.')
+            raise ValueError(f'Invalid new_index {new_index} for {len(self.attributes)} attributes.')
         
         with open(self.path, 'r', encoding=self.file_encoding) as temp_file:
             lines = temp_file.readlines()

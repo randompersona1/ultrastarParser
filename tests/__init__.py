@@ -10,3 +10,5 @@ if __name__ == '__main__':
 
     usf.set_attribute('#COVER', 'ABBA - Dancing Queen.jpg')
     print(usf.get_attribute('#COVER'))
+
+    usf.reorder_auto()
