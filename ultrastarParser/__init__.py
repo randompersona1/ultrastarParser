@@ -71,7 +71,7 @@ class UltraStarFile:
             '#GAP',
         ]
         missing_required = [attribute for attribute in required_attributes if attribute not in self.attributes]
-        extra_attributes = [attribute for attribute in self.attributes if attribute not in required_attributes]
+        extra_attributes = [attribute for attribute in self.attributes if self.attributes[attribute] is None]
 
         if len(missing_required) == 0 and len(extra_attributes) == 0:
             returncode = 'OK'
