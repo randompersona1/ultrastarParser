@@ -50,8 +50,38 @@ class UltraStarFile:
 
         self.attributes[attribute] = value
 
-    def reorder_attribute(self, attribute: str, new_index: int) -> None:
+    def reorder_auto(self) -> None:
+        '''
+        Automatically reorders the attributes in the file. Currently not implemented.
+        '''
         raise NotImplementedError('This method has not been implemented yet.')
+
+    def reorder_attribute(self, old_index: int, new_index: int) -> None:
+        '''
+        Reorders the attribute at old_index to new_index.
+        '''
+        if old_index == new_index:
+            return
+        if old_index < 0 or old_index >= len(self.attributes):
+            raise ValueError('Invalid old_index.')
+        if new_index < 0 or new_index >= len(self.attributes)+1:
+            raise ValueError('Invalid new_index.')
+        
+        with open(self.path, 'r', encoding=self.file_encoding) as temp_file:
+            lines = temp_file.readlines()
+
+        attributes = [line for line in lines if line.startswith('#')]
+        attribute = attributes.pop(old_index)
+        attributes.insert(new_index, attribute)
+
+        for i in range(len(lines)):
+            if lines[i].startswith('#'):
+                lines[i] = attributes.pop(0)
+        
+        with open(self.path, 'w', encoding=self.file_encoding) as file:
+            file.writelines(lines)
+        
+        self.parse()
 
     def remove_attribute(attribute: str) -> None:
         '''
