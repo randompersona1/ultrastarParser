@@ -29,21 +29,29 @@ class UltraStarFile:
 
     def set_attribute(self, attribute: str, value: str) -> None:
         '''
-        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). Currently only supports setting existing attributes. There is no need to reparse the file after setting an attribute.
+        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute.
         '''
         with open(self.path, 'r', encoding=self.file_encoding) as temp_file:
             lines = temp_file.readlines()
-        for i in range(len(lines)):
-            if lines[i].startswith(attribute):
-                lines[i] = attribute + ':' + value + '\n'
-                break
+        
+        if attribute not in self.attributes:
+            for i in range(len(lines)):
+                if not lines[i].startswith('#'):
+                    lines.insert(i, attribute + ':' + value + '\n')
+                    break
         else:
-            raise NotImplementedError(f'Attribute {attribute} not found in file')
+            for i in range(len(lines)):
+                if lines[i].startswith(attribute):
+                    lines[i] = attribute + ':' + value + '\n'
+                    break
 
         with open(self.path, 'w', encoding=self.file_encoding) as file:
             file.writelines(lines)
 
         self.attributes[attribute] = value
+
+    def reorder_attribute(self, attribute: str, new_index: int) -> None:
+        raise NotImplementedError('This method has not been implemented yet.')
 
     def remove_attribute(attribute: str) -> None:
         '''
