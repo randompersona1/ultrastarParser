@@ -1,15 +1,15 @@
-#ARTIST:Bon Jovi
 #TITLE:Dancing Queen
+#ARTIST:Bon Jovi
 #MP3:ABBA - Dancing Queen.mp3
-#CREATOR:IC
-#EDITION:SingStar ABBA
-#GENRE:Pop
-#YEAR:1976
-#LANGUAGE:English
 #BPM:339.3
-#GAP:18950
-#VIDEO:ABBA - Dancing Queen.mp4
 #COVER:ABBA - Dancing Queen.jpg
+#VIDEO:ABBA - Dancing Queen.mp4
+#EDITION:SingStar ABBA
+#CREATOR:IC
+#GAP:18950
+#LANGUAGE:English
+#YEAR:1976
+#GENRE:Pop
 : 0 14 11 Ooh 
 : 15 1 13 ooh
 : 17 2 11 ~

@@ -9,12 +9,16 @@ class UltraStarFile:
         self.file_encoding = file_encoding
         self.attributes = {}
 
+        self.commonname: str = os.path.basename(path).split('.')[:-1]
+        self.songfolder = os.path.dirname(path)
+
         self.parse()
 
     def parse(self) -> None:
         '''
         Reparses the file to update the attributes dictionary. This is called automatically when the class is initialized.
         '''
+        self.attributes = {}
         with open(self.path, 'r', encoding=self.file_encoding) as file:
             lines = file.readlines()
             for line in lines:
@@ -29,7 +33,7 @@ class UltraStarFile:
 
     def set_attribute(self, attribute: str, value: str) -> None:
         '''
-        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute.
+        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute. If the attribute is not present in the file, it will be added at the end.
         '''
         with open(self.path, 'r', encoding=self.file_encoding) as temp_file:
             lines = temp_file.readlines()
@@ -49,6 +53,34 @@ class UltraStarFile:
             file.writelines(lines)
 
         self.attributes[attribute] = value
+
+    def check(self) -> tuple[str, list[list[str], list[str]]]:
+        '''
+        Checks whether all required attributes are present in the file.
+        Returns a specific tuple:
+        - The first element is the status of the file. It can be 'OK', 'MISSING', or 'ERROR'.
+        - The second element is a list of missing required attributes.
+        - The third element is a list of extra attributes.
+        '''
+        required_attributes = [
+            '#VERSION',
+            '#TITLE',
+            '#ARTIST',
+            '#MP3',
+            '#BPM',
+            '#GAP',
+        ]
+        missing_required = [attribute for attribute in required_attributes if attribute not in self.attributes]
+        extra_attributes = [attribute for attribute in self.attributes if attribute not in required_attributes]
+
+        if len(missing_required) == 0 and len(extra_attributes) == 0:
+            returncode = 'OK'
+        elif len(missing_required) > 0:
+            returncode = 'MISSING'
+        else:
+            returncode = 'ERROR'
+
+        return returncode, missing_required, extra_attributes    
 
     def reorder_auto(self) -> None:
         '''
