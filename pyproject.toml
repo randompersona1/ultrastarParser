@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ultrastarParser"
-version = "0.2.0"
+version = "0.3.0"
 description = "Parser for Ultrastar text files."
 authors = [
     "randompersona1 <74961116+randompersona1@users.noreply.github.com>"
@@ -12,7 +12,7 @@ homepage = "https://github.com/randompersona1/ultrastarParser"
 packages = [{include = "ultrastarParser"}]
 
 [tool.poetry.dependencies]
-python = ">=3.5"
+python = ">=3.7"
 
 
 [build-system]
