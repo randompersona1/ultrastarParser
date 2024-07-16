@@ -81,7 +81,7 @@ class UltraStarFile:
         else:
             returncode = 'ERROR'
 
-        return returncode, missing_required, extra_attributes    
+        return returncode, missing_required, extra_attributes
 
     def reorder_auto(self) -> None:
         '''
@@ -122,7 +122,7 @@ class UltraStarFile:
 
         file_line: int = 0
         for attr in usdx_order:
-            if attr in self.attributes.keys():
+            if attr in self.attributes:
                 self.reorder_attribute(list(self.attributes.keys()).index(attr), file_line)
                 file_line += 1
 
