@@ -26,7 +26,12 @@ class UltraStarFile:
             lines = file.readlines()
             for line in lines:
                 if line.startswith('#'):
-                    self.attributes[line.split(':')[0]] = line.split(':')[1].strip()
+                    attribute = line.split(':')[0].upper()
+                    value = line.split(':')[1].strip()
+                    if attribute in self.attributes:
+                        print(f'Warning: Duplicate attribute {attribute} in {self.path}. Not adding {value}.')
+                        continue
+                    self.attributes[attribute] = value
                 elif line == '\n':
                         continue
                 else:
@@ -36,13 +41,15 @@ class UltraStarFile:
         '''
         Returns the value of the attribute (e.g., '#ARTIST' -> 'Artist Name')
         '''
-        return self.attributes.get(attribute, None)
+        return self.attributes.get(attribute.upper(), None)
 
     def set_attribute(self, attribute: str, value: str) -> None:
         '''
-        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute. If the attribute is not present in the file, it will be added at the end.
+        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute.
+        If the attribute is not present in the file, it will be added at the end since we cannot know where it should be placed if the other
+        attributes are not in order.
         '''
-        self.attributes[attribute] = value
+        self.attributes[attribute.upper()] = value
 
     def check(self) -> tuple[str, list[list[str], list[str]]]:
         '''
@@ -133,9 +140,9 @@ class UltraStarFile:
 
     def remove_attribute(self, attribute: str) -> None:
         '''
-        Removes the attribute from the file. Currently not implemented.
+        Removes the attribute from the file.
         '''
-        self.attributes.pop(attribute)
+        self.attributes.pop(attribute.upper())
     
     def mp3_path(self) -> str:
         '''
@@ -156,18 +163,18 @@ class UltraStarFile:
             file.writelines(text)
 
     def __str__(self) -> str:
-        return self.path
-    
+        return self.commonname
+
     def __repr__(self) -> str:
-        return self.__str__()
+        return f'UltraStarFile(path="{self.path}")'
     
     def __eq__(self, other) -> bool:
-        return self.path == other.path
+        return self.attributes == other.attributes and self.songtext == other.songtext
 
 
 class Library:
     '''
-    Represents a library of UltraStar files. 
+    Represents a library of UltraStar files.
     '''
     def __init__(self, path: str) -> None:
         '''
@@ -176,7 +183,11 @@ class Library:
         self.path = path
         self.songs: list[UltraStarFile] = []
 
-        for root, _, files in os.walk(path):
+        self.parse()
+
+    def parse(self) -> None:
+        self.songs.clear()
+        for root, _, files in os.walk(self.path):
             for file in files:
                 if file.endswith(".txt"):
                     self.songs.append(UltraStarFile(os.path.join(root, file)))
@@ -190,14 +201,17 @@ class Library:
     def songs(self) -> list[UltraStarFile]:
         return self.songs
 
+    def __repr__(self) -> str:
+        return f'Library(path="{self.path}")'
+
     def __str__(self) -> str:
         return self.path
 
-    def __iter__(self):
+    def __iter__(self) -> UltraStarFile:
         return iter(self.songs)
     
-    def __next__(self):
+    def __next__(self) -> UltraStarFile:
         return next(self.songs)
     
     def __eq__(self, other) -> bool:
-        return self.path == other.path
+        return self.songs == other.songs
