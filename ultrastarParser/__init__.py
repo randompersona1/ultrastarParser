@@ -18,7 +18,8 @@ class UltraStarFile:
 
     def parse(self) -> None:
         '''
-        Reparses the file to update the attributes dictionary. This is called automatically when the class is initialized.
+        Reparses the file to update the attributes dictionary. This is called automatically when
+        the class is initialized.
         '''
         self.attributes = {}
         self.songtext = []
@@ -29,14 +30,15 @@ class UltraStarFile:
                     attribute = line.split(':')[0].upper()
                     value = line.split(':')[1].strip()
                     if attribute in self.attributes:
-                        print(f'Warning: Duplicate attribute {attribute} in {self.path}. Not adding {value}.')
+                        print(f'Warning: Duplicate attribute {attribute} in {self.path}.'
+                              f'Not adding {value}.')
                         continue
                     self.attributes[attribute] = value
                 elif line == '\n':
-                        continue
+                    continue
                 else:
                     self.songtext.append(line)
-    
+
     def get_attribute(self, attribute: str) -> str:
         '''
         Returns the value of the attribute (e.g., '#ARTIST' -> 'Artist Name')
@@ -45,8 +47,9 @@ class UltraStarFile:
 
     def set_attribute(self, attribute: str, value: str) -> None:
         '''
-        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute.
-        If the attribute is not already present, it will be added at the end since we cannot know where it should be placed if the other
+        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to
+        reparse the file after setting an attribute. If the attribute is not already present, it
+        will be added at the end since we cannot know where it should be placed if the other
         attributes are not in order.
         '''
         self.attributes[attribute.upper()] = value
@@ -68,8 +71,8 @@ class UltraStarFile:
             '#BPM',
             '#GAP',
         ]
-        missing_required = [attribute for attribute in required_attributes if attribute not in self.attributes]
-        extra_attributes = [attribute for attribute in self.attributes if self.attributes[attribute] is None]
+        missing_required = [attr for attr in required_attributes if attr not in self.attributes]
+        extra_attributes = [attr for attr, value in self.attributes.items() if value is None]
 
         if len(missing_required) == 0 and len(extra_attributes) == 0:
             returncode = 'OK'
@@ -82,7 +85,7 @@ class UltraStarFile:
 
     def reorder_auto(self) -> None:
         '''
-        Automatically reorders attributes according to https://usdx.eu/format/. Uses reorder_attribute.
+        Automatically reorders attributes according to https://usdx.eu/format/.
         '''
         # Perfect order according to https://usdx.eu/format/
         usdx_order = [
@@ -118,12 +121,10 @@ class UltraStarFile:
         ]
 
         file_line: int = 0
-        order_index: int = 0
-        for order_index in range(len(usdx_order)):
-            if usdx_order[order_index] in self.attributes.keys():
-                self.reorder_attribute(list(self.attributes.keys()).index(usdx_order[order_index]), file_line)
+        for attr in usdx_order:
+            if attr in self.attributes.keys():
+                self.reorder_attribute(list(self.attributes.keys()).index(attr), file_line)
                 file_line += 1
-
 
     def reorder_attribute(self, old_index: int, new_index: int) -> None:
         '''
@@ -133,31 +134,39 @@ class UltraStarFile:
             return
         if old_index < 0 or old_index >= len(self.attributes):
             raise ValueError('Invalid old_index.')
-        if new_index < 0 or new_index >= len(self.attributes)+1:
-            raise ValueError(f'Invalid new_index {new_index} for {len(self.attributes)} attributes.')
+        if new_index < 0 or new_index >= len(self.attributes):
+            raise ValueError(f'Invalid new_index {new_index} for'
+                             f'{len(self.attributes)} attributes.')
 
-        attribute = self.attributes.pop(old_index)
-        self.attributes.insert(new_index, attribute)
+        # Convert attributes to a list of tuples (key, value)
+        items = list(self.attributes.items())
+        # Remove the item at old_index
+        item = items.pop(old_index)
+        # Insert the item at new_index
+        items.insert(new_index, item)
+        # Convert the list of tuples back to a dictionary
+        self.attributes = dict(items)
 
     def remove_attribute(self, attribute: str) -> None:
         '''
         Removes the attribute
         '''
         self.attributes.pop(attribute.upper())
-    
+
     def mp3_path(self) -> str:
         '''
-        Returns the path to the MP3 file associated with the UltraStar file. This method exists for ease of use, it just calls get_attribute('#MP3').
+        Returns the path to the MP3 file associated with the UltraStar file. This method exists for
+        ease of use, it just calls get_attribute('#MP3').
         '''
         return self.get_attribute('#MP3')
-    
+
     def flush(self):
         '''
         Flush changes to the file system.
         '''
         text = []
-        for attribute in self.attributes:
-            text.append(f'{attribute}:{self.attributes[attribute]}\n')
+        for attribute, value in self.attributes.items():
+            text.append(f'{attribute}:{value}\n')
         for line in self.songtext:
             text.append(line)
         with open(self.path, 'w', encoding=self.file_encoding) as file:
@@ -168,14 +177,15 @@ class UltraStarFile:
 
     def __repr__(self) -> str:
         return f'UltraStarFile(path="{self.path}")'
-    
+
     def __eq__(self, other) -> bool:
         return self.attributes == other.attributes and self.songtext == other.songtext
 
 
 class Library:
     '''
-    Represents a library of UltraStar files.
+    Represents a library of UltraStar files. Assumes that all text files in the directory are
+    UltraStar files.
     '''
     def __init__(self, path: str) -> None:
         '''
@@ -187,20 +197,21 @@ class Library:
         self.parse()
 
     def parse(self) -> None:
+        '''
+        Parses the library directory to find all UltraStar files. Called automatically on
+        initialization.
+        '''
         self.songs.clear()
         for root, _, files in os.walk(self.path):
             for file in files:
                 if file.endswith(".txt"):
                     self.songs.append(UltraStarFile(os.path.join(root, file)))
-    
+
     def search(self, attribute: str, value: str) -> list[UltraStarFile]:
         '''
         Search for songs with the given attribute and value.
         '''
         return [song for song in self.songs if song.get_attribute(attribute) == value]
-    
-    def songs(self) -> list[UltraStarFile]:
-        return self.songs
 
     def __repr__(self) -> str:
         return f'Library(path="{self.path}")'
@@ -210,9 +221,9 @@ class Library:
 
     def __iter__(self) -> UltraStarFile:
         return iter(self.songs)
-    
+
     def __next__(self) -> UltraStarFile:
         return next(self.songs)
-    
+
     def __eq__(self, other) -> bool:
         return self.songs == other.songs
