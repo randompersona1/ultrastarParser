@@ -46,19 +46,20 @@ class UltraStarFile:
     def set_attribute(self, attribute: str, value: str) -> None:
         '''
         Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute.
-        If the attribute is not present in the file, it will be added at the end since we cannot know where it should be placed if the other
+        If the attribute is not already present, it will be added at the end since we cannot know where it should be placed if the other
         attributes are not in order.
         '''
         self.attributes[attribute.upper()] = value
 
     def check(self) -> tuple[str, list[list[str], list[str]]]:
         '''
-        Checks whether all required attributes are present in the file.
+        Checks whether all required attributes are present.
         Returns a specific tuple:
         - The first element is the status of the file. It can be 'OK', 'MISSING', or 'ERROR'.
         - The second element is a list of missing required attributes.
         - The third element is a list of extra attributes.
         '''
+        # Required attributes according to https://usdx.eu/format/
         required_attributes = [
             '#VERSION',
             '#TITLE',
@@ -81,7 +82,7 @@ class UltraStarFile:
 
     def reorder_auto(self) -> None:
         '''
-        Automatically reorders the attributes in the file. Uses reorder_attribute.
+        Automatically reorders attributes according to https://usdx.eu/format/. Uses reorder_attribute.
         '''
         # Perfect order according to https://usdx.eu/format/
         usdx_order = [
@@ -140,13 +141,13 @@ class UltraStarFile:
 
     def remove_attribute(self, attribute: str) -> None:
         '''
-        Removes the attribute from the file.
+        Removes the attribute
         '''
         self.attributes.pop(attribute.upper())
     
     def mp3_path(self) -> str:
         '''
-        Returns the path to the MP3 file associated with the UltraStar file.
+        Returns the path to the MP3 file associated with the UltraStar file. This method exists for ease of use, it just calls get_attribute('#MP3').
         '''
         return self.get_attribute('#MP3')
     
