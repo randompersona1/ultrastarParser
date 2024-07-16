@@ -7,7 +7,9 @@ class UltraStarFile:
     def __init__(self, path: str, file_encoding: str = 'utf-8') -> None:
         self.path = path
         self.file_encoding = file_encoding
-        self.attributes = {}
+
+        self.attributes: dict[str, str] = {}
+        self.songtext: list[str] = []
 
         self.commonname: str = os.path.basename(path).split('.')[:-1]
         self.songfolder = os.path.dirname(path)
@@ -19,11 +21,16 @@ class UltraStarFile:
         Reparses the file to update the attributes dictionary. This is called automatically when the class is initialized.
         '''
         self.attributes = {}
+        self.songtext = []
         with open(self.path, 'r', encoding=self.file_encoding) as file:
             lines = file.readlines()
             for line in lines:
                 if line.startswith('#'):
                     self.attributes[line.split(':')[0]] = line.split(':')[1].strip()
+                elif line == '\n':
+                        continue
+                else:
+                    self.songtext.append(line)
     
     def get_attribute(self, attribute: str) -> str:
         '''
@@ -35,23 +42,6 @@ class UltraStarFile:
         '''
         Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name'). There is no need to reparse the file after setting an attribute. If the attribute is not present in the file, it will be added at the end.
         '''
-        with open(self.path, 'r', encoding=self.file_encoding) as temp_file:
-            lines = temp_file.readlines()
-        
-        if attribute not in self.attributes:
-            for i in range(len(lines)):
-                if not lines[i].startswith('#'):
-                    lines.insert(i, attribute + ':' + value + '\n')
-                    break
-        else:
-            for i in range(len(lines)):
-                if lines[i].startswith(attribute):
-                    lines[i] = attribute + ':' + value + '\n'
-                    break
-
-        with open(self.path, 'w', encoding=self.file_encoding) as file:
-            file.writelines(lines)
-
         self.attributes[attribute] = value
 
     def check(self) -> tuple[str, list[list[str], list[str]]]:
@@ -137,28 +127,15 @@ class UltraStarFile:
             raise ValueError('Invalid old_index.')
         if new_index < 0 or new_index >= len(self.attributes)+1:
             raise ValueError(f'Invalid new_index {new_index} for {len(self.attributes)} attributes.')
-        
-        with open(self.path, 'r', encoding=self.file_encoding) as temp_file:
-            lines = temp_file.readlines()
 
-        attributes = [line for line in lines if line.startswith('#')]
-        attribute = attributes.pop(old_index)
-        attributes.insert(new_index, attribute)
+        attribute = self.attributes.pop(old_index)
+        self.attributes.insert(new_index, attribute)
 
-        for i in range(len(lines)):
-            if lines[i].startswith('#'):
-                lines[i] = attributes.pop(0)
-        
-        with open(self.path, 'w', encoding=self.file_encoding) as file:
-            file.writelines(lines)
-        
-        self.parse()
-
-    def remove_attribute(attribute: str) -> None:
+    def remove_attribute(self, attribute: str) -> None:
         '''
         Removes the attribute from the file. Currently not implemented.
         '''
-        raise NotImplementedError('This method has not been implemented yet.')
+        self.attributes.pop(attribute)
     
     def mp3_path(self) -> str:
         '''
@@ -166,6 +143,18 @@ class UltraStarFile:
         '''
         return self.get_attribute('#MP3')
     
+    def flush(self):
+        '''
+        Flush changes to the file system.
+        '''
+        text = []
+        for attribute in self.attributes:
+            text.append(f'{attribute}:{self.attributes[attribute]}\n')
+        for line in self.songtext:
+            text.append(line)
+        with open(self.path, 'w', encoding=self.file_encoding) as file:
+            file.writelines(text)
+
     def __str__(self) -> str:
         return self.path
     
