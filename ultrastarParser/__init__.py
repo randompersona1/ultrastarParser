@@ -26,6 +26,9 @@ class UltraStarFile:
         with open(self.path, 'r', encoding=self.file_encoding) as file:
             lines = file.readlines()
             for line in lines:
+                # Remove BOM character if present
+                if line.startswith('\ufeff'):
+                    line = line.lstrip('\ufeff')
                 if line.startswith('#'):
                     attribute = line.split(':')[0].upper()
                     value = line.split(':')[1].strip()
