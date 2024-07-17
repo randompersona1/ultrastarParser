@@ -11,7 +11,7 @@ class UltraStarFile:
         self.attributes: dict[str, str] = {}
         self.songtext: list[str] = []
 
-        self.commonname: str = os.path.basename(path).split('.')[:-1][0]
+        self.commonname: str = os.path.splitext(os.path.basename(path))[0]
         self.songfolder = os.path.dirname(path)
 
         self.parse()
