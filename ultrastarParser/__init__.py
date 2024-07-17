@@ -36,6 +36,8 @@ class UltraStarFile:
                         print(f'Warning: Duplicate attribute {attribute} in {self.path}.'
                               f'Not adding {value}.')
                         continue
+                    if value == '':
+                        value = None
                     self.attributes[attribute] = value
                 elif line == '\n':
                     continue
