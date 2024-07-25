@@ -24,4 +24,3 @@ Use the package manager of your choice: [pypi](https://pypi.org/project/ultrasta
 - Metadata extraction (e.g. song duration from audio file)
 - Comparison between ultrastar files
 - Exporting a library as json, csv with different tags included
-- filtering songs in a library
