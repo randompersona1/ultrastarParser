@@ -1,4 +1,5 @@
 import os
+import shutil
 
 
 class UltraStarFile:
@@ -8,6 +9,12 @@ class UltraStarFile:
     than utf-8 without BOM could cause issues.
     '''
     def __init__(self, path: str, file_encoding: str = 'utf-8') -> None:
+        '''
+        :param path: The path to the UltraStar file.
+        :param file_encoding: The encoding of the file. Default is 'utf-8'.
+        Other file encodings will probaby cause issues.
+        '''
+
         self.path = path
         self.file_encoding = file_encoding
 
@@ -57,11 +64,13 @@ class UltraStarFile:
 
     def set_attribute(self, attribute: str, value: str) -> None:
         '''
-        Sets the value of the attribute (e.g., '#ARTIST', 'Artist Name').
-        There is no need to reparse the file after setting an attribute. If
-        the attribute is not already present, it will be added at the end
-        since we cannot know where it should be placed if the other attributes
-        are not in order.
+        Sets the value of the attribute. There is no need to reparse the file
+        after setting an attribute. If the attribute is not already present,
+        it will be added at the end since we cannot know where it should be
+        placed if the other attributes are not in order.
+
+        :param attribute: The attribute to set (e.g., '#ARTIST').
+        :param value: The value of the attribute (e.g., 'Bon Jovi').
         '''
         self.attributes[attribute.upper()] = value
 
@@ -77,6 +86,11 @@ class UltraStarFile:
         'MISSING', or 'ERROR'.
         - The second element is a list of missing required attributes.
         - The third element is a list of extra attributes.
+
+        :param required: A list of required attributes like ['#TITLE',
+        '#ARTIST', ...]. If not provided, the default list is used.
+        :return: A tuple with the status, missing required attributes, and
+        extra attributes.
         '''
         # Required attributes according to https://usdx.eu/format/
         required_attributes = [
@@ -107,9 +121,10 @@ class UltraStarFile:
     def reorder_auto(self, order: list[str] = None) -> None:
         '''
         Automatically reorders attributes according to https://usdx.eu/format/.
-        It's also possible to provide a custom order. A custom order should be
-        a list of attribute names in the desired order
-        like ['#TITLE', '#ARTIST', '#MP3', ...].
+        It's also possible to provide a custom order.
+
+        :param order: A custom order of attributes like ['#TITLE', '#ARTIST',
+        '#MP3', ...]. If not provided, the default order is used.
         '''
         # Perfect order according to https://usdx.eu/format/
         usdx_order = [
@@ -158,6 +173,9 @@ class UltraStarFile:
     def reorder_attribute(self, old_index: int, new_index: int) -> None:
         '''
         Reorders the attribute at old_index to new_index.
+
+        :param old_index: The current index of the attribute.
+        :param new_index: The new index of the attribute.
         '''
         if old_index == new_index:
             return
@@ -178,7 +196,9 @@ class UltraStarFile:
 
     def remove_attribute(self, attribute: str) -> None:
         '''
-        Removes the attribute
+        Removes the attribute from the UltraStar file.
+
+        :param attribute: The attribute to remove.
         '''
         self.attributes.pop(attribute.upper())
 
@@ -187,6 +207,8 @@ class UltraStarFile:
         Returns the path to the MP3 file associated with the UltraStar file.
         This method exists tries to get the #MP3 attribute. If it does not
         exist, return #AUDIO.
+
+        :return: The path to the associated audio file.
         '''
         if self.get_attribute('#MP3') is not None:
             return self.get_attribute('#MP3')
@@ -229,7 +251,7 @@ class Library:
     '''
     def __init__(self, path: str) -> None:
         '''
-        path: The path to the library directory.
+        :param: path: The path to the library directory.
         '''
         self.path = path
         self.songs: list[UltraStarFile] = []
@@ -251,9 +273,84 @@ class Library:
         '''
         Search for songs with the given attribute and value like '#ARTIST',
         'Bon Jovi' -> [UltraStarFile, ...]
+
+        :param attribute: The attribute to search for.
+        :param value: The value of the attribute to search for.
+        :return: A list of UltraStarFile objects that match the search.
         '''
         return [song for song in self.songs
                 if song.get_attribute(attribute) == value]
+
+    def add(self, song: UltraStarFile, delete_old_files: bool = False) -> bool:
+        '''
+        Adds a song to the library. This will copy all song files to the
+        library folder. If an error occurs, no changes are made.
+
+        :param song: The UltraStarFile object to add.
+        :param delete_old_files: If True, the old song files will be deleted
+        i.e. the song will be moved instead of copied.
+        :return: True if the song was added, False if the song is already in
+        the library or an error occurred while adding.
+        '''
+        # Check if the song is already in the library
+        if song in self.songs:
+            return False
+        # Deeper check for the same song using the commonname
+        if song.commonname in [s.commonname for s in self.songs]:
+            return False
+        # Additional check to assert that the song path is not in the library
+        if song.path.startswith(self.path):
+            return False
+
+        # Copy the song to the library
+        old_song_folder_path = song.songfolder
+        new_song_folder_path = os.path.join(self.path, song.commonname)
+
+        try:
+            os.makedirs(new_song_folder_path, exist_ok=False)
+        except FileExistsError:
+            return False
+
+        try:
+            shutil.copy(old_song_folder_path, new_song_folder_path)
+        except shutil.SameFileError:
+            return False
+
+        if delete_old_files:
+            try:
+                shutil.rmtree(old_song_folder_path)
+            except FileNotFoundError:
+                pass
+
+        # Create new song object and add it to the library
+        new_song = UltraStarFile(
+            os.path.join(new_song_folder_path, song.path)
+        )
+        self.songs.append(new_song)
+        return True
+
+    def remove(self, song: UltraStarFile) -> bool:
+        '''
+        Removes a song from the library. This will delete the song folder
+        and all files in it.
+
+        :param song: The UltraStarFile object to remove.
+        :return: True if the song was removed, False if the song is not in
+        the library or an error occurred while removing.
+        '''
+        if song not in self.songs:
+            return False
+
+        if not song.path.startswith(self.path):
+            return False
+
+        try:
+            shutil.rmtree(song.songfolder)
+        except FileNotFoundError:
+            return False
+
+        self.songs.remove(song)
+        return True
 
     def __repr__(self) -> str:
         return f'Library(path="{self.path}")'
