@@ -1,6 +1,7 @@
 import os
 import shutil
 from ultrastarParser._ultrastarfile import UltrastarFile
+from ultrastarParser.usdx_format import USDX_ALL
 
 
 class Library:
@@ -110,6 +111,25 @@ class Library:
 
         self.songs.remove(song)
         return True
+
+    def least_common_divisor_attributes(self) -> list[str]:
+        '''
+        Returns all attributes in use in the entire library.
+
+        :return: A list of all attributes used in the library.
+        '''
+        attributes = set()
+        for song in self.songs:
+            attributes.update(song.attributes.keys())
+        attributes = list(attributes)
+
+        # Sort the attributes list according to the USDX_ALL list
+        sorted_attributes = []
+        for usdx_attribute in USDX_ALL:
+            if usdx_attribute in attributes:
+                sorted_attributes.append(usdx_attribute)
+
+        return sorted_attributes
 
     def __repr__(self) -> str:
         return f'Library(path="{self.path}")'
