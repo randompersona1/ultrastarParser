@@ -74,6 +74,15 @@ class UltraStarFile:
         '''
         self.attributes[attribute.upper()] = value
 
+    def attribute_exists(self, attribute: str) -> bool:
+        '''
+        Checks whether the attribute exists in the UltraStar file.
+
+        :param attribute: The attribute to check.
+        :return: True if the attribute exists, False otherwise.
+        '''
+        return attribute.upper() in self.attributes.keys()
+
     def check(self, required: list[str] = None) -> tuple[str, list[list[str],
                                                                    list[str]]]:
         '''
