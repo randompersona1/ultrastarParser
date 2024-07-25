@@ -12,7 +12,7 @@ homepage = "https://github.com/randompersona1/ultrastarParser"
 packages = [{include = "ultrastarParser"}]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.10"
 
 
 [build-system]
