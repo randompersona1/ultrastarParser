@@ -286,11 +286,14 @@ class UltrastarFile:
         for attr in urls:
             if attr in self.attributes:
                 try:
+                    response: requests.Response
                     response = requests.get(self.get_attribute(attr))
                     if response.status_code != 200:
                         faulty_urls.append(attr)
                 except requests.exceptions.RequestException:
                     faulty_urls.append(attr)
+        del response
+        return faulty_urls
 
     def reorder_attribute(self, old_index: int, new_index: int) -> None:
         '''
