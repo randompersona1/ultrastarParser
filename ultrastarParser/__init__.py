@@ -31,6 +31,7 @@ class UltraStarFile:
         Reparses the file to update the attributes. This is called
         automatically when the class is initialized. Attributes are
         converted to uppercase to make them case-insensitive.
+        If a version tag is not yet present, it will be added automatically.
         '''
         self.attributes = {}
         self.songtext = []
@@ -54,6 +55,9 @@ class UltraStarFile:
                     continue
                 else:
                     self.songtext.append(line)
+
+        if not self.attribute_exists('#VERSION'):
+            self.set_attribute('#VERSION', 'v1.1.0')
 
     def get_attribute(self, attribute: str) -> str:
         '''
@@ -83,8 +87,8 @@ class UltraStarFile:
         '''
         return attribute.upper() in self.attributes.keys()
 
-    def check(self, required: list[str] = None) -> tuple[str, list[list[str],
-                                                                   list[str]]]:
+    def check(self, required: list[str] = None,
+              ) -> tuple[str, list[list[str], list[str]]]:
         '''
         Checks whether all required attributes are present according to
         https://usdx.eu/format. If you need custom required attributes,
@@ -178,6 +182,122 @@ class UltraStarFile:
                     file_line
                 )
                 file_line += 1
+
+    def validate_attributes(self,
+                            attributes_with_paths: list[str] | None = None,
+                            attributes_numbers: list[str] | None = None,
+                            ) -> list[str]:
+        '''
+        Validates the file by checking attributes.
+
+        :param attributes_with_paths: A list of attributes that refer to files
+        like '#MP3', '#AUDIO', '#COVER', '#BACKGROUND', '#VIDEO', etc. If not
+        provided, the default list is used.
+        :param attributes_numbers: A list of attributes that refer to numbers
+        like '#BPM', '#GAP', etc. If not provided, the default list is used.
+        :return: A list of attributes that are faulty.
+        '''
+        if attributes_with_paths is None:
+            attributes_with_paths = [
+                '#MP3',
+                '#AUDIO',
+                '#VOCALS',
+                '#INSTRUMENTAL',
+                '#COVER',
+                '#BACKGROUND',
+                '#VIDEO',
+            ]
+
+        if attributes_numbers is None:
+            attributes_numbers = [
+                '#BPM',
+                '#GAP',
+                '#VIDEOGAP',
+                '#YEAR',
+                '#START',
+                '#END',
+                '#PREVIEWSTART',
+                '#MEDLEYSTARTBEAT',
+                '#MEDLEYENDBEAT',
+            ]
+
+        faulty_attributes = []
+
+        for attr in attributes_with_paths:
+            if attr in self.attributes:
+                if not os.path.exists(os.path.join(self.songfolder,
+                                                   self.get_attribute(attr))):
+                    faulty_attributes.append(attr)
+
+        for attr in attributes_numbers:
+            if attr in self.attributes:
+                try:
+                    value = float(self.get_attribute(attr))
+                    if value < 0:
+                        raise ValueError
+                except ValueError:
+                    faulty_attributes.append(attr)
+
+        return faulty_attributes
+
+    def is_duet(self) -> bool:
+        '''
+        Checks if the song is a duet by searching for different things. Just
+        because a song is a duet does not mean that it works in UltraStar.
+
+        :return: True if the song is a duet, False otherwise.
+        '''
+        # Check for P1 and P2 attributes
+        if (self.get_attribute('P1') is not None or
+                self.get_attribute('P2') is not None):
+            return True
+
+        # Check for 'P1' or 'P2' in the songtext
+        for line in self.songtext:
+            if 'p1' in line.lower() or 'p2' in line.lower():
+                return True
+
+        # Check for '[DUET]-Songs' as edition
+        if self.get_attribute('#EDITION') == '[DUET]-Songs':
+            return True
+
+        return False
+
+    def validate_duet(self) -> int:
+        '''
+        Validates that a duet has all necessary features.
+
+        :return:
+        0 if the song is fully valid
+        1 if the song is a duet with incorrect attributes
+        2 if the song is a duet but missing P1 or P2 markers in the songtext
+        3 if the song is not a duet
+        '''
+
+        if not self.is_duet():
+            return 3
+
+        # Check P1 and P2 attributes
+        if (self.get_attribute('P1') is None or
+                self.get_attribute('P2') is None):
+            return 1
+
+        # Check for 'P1' and 'P2' in the songtext
+        p1exists = False
+        p2exists = False
+        for line in self.songtext:
+            if 'p1' in line.lower():
+                p1exists = True
+                if p2exists:
+                    break
+            if 'p2' in line.lower():
+                p2exists = True
+                if p1exists:
+                    break
+        if not p1exists or not p2exists:
+            return 2
+
+        return 0
 
     def reorder_attribute(self, old_index: int, new_index: int) -> None:
         '''
