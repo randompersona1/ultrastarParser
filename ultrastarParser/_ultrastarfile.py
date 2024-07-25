@@ -1,4 +1,5 @@
 import os
+from usdx_format import USDX_ALL, USDX_FILES, USDX_NUMBERS, USDX_REQUIRED
 
 
 class UltrastarFile:
@@ -7,6 +8,8 @@ class UltrastarFile:
     If the format differs, a best effort is made. Be aware that formats other
     than utf-8 without BOM could cause issues.
     '''
+    _VERSION: str = 'v1.1.0'
+
     def __init__(self, path: str, file_encoding: str = 'utf-8') -> None:
         '''
         :param path: The path to the UltraStar file.
@@ -17,8 +20,8 @@ class UltrastarFile:
         self.path = path
         self.file_encoding = file_encoding
 
-        self.attributes: dict[str, str] = {}
-        self.songtext: list[str] = []
+        self.attributes: dict[str, str]
+        self.songtext: list[str]
 
         self.commonname: str = os.path.splitext(os.path.basename(path))[0]
         self.songfolder = os.path.dirname(path)
@@ -35,12 +38,14 @@ class UltrastarFile:
         self.attributes = {}
         self.songtext = []
         with open(self.path, 'r', encoding=self.file_encoding) as file:
+            reading_attributes = True
             lines = file.readlines()
             for line in lines:
                 # Remove BOM character if present
+                line = line.strip()
                 if line.startswith('\ufeff') and self.file_encoding == 'utf-8':
                     line = line.lstrip('\ufeff')
-                if line.startswith('#'):
+                if line.startswith('#') and reading_attributes:
                     attribute = line.split(':')[0].upper()
                     value = line.split(':')[1].strip()
                     if attribute in self.attributes:
@@ -50,13 +55,14 @@ class UltrastarFile:
                     if value == '':
                         value = None
                     self.attributes[attribute] = value
-                elif line == '\n':
+                elif line == '\n' and reading_attributes:
                     continue
                 else:
+                    reading_attributes = False
                     self.songtext.append(line)
 
         if not self.attribute_exists('#VERSION'):
-            self.set_attribute('#VERSION', 'v1.1.0')
+            self.set_attribute('#VERSION', self._VERSION)
 
     def get_attribute(self, attribute: str) -> str:
         '''
@@ -105,14 +111,7 @@ class UltrastarFile:
         extra attributes.
         '''
         # Required attributes according to https://usdx.eu/format/
-        required_attributes = [
-            '#VERSION',
-            '#TITLE',
-            '#ARTIST',
-            '#MP3',
-            '#BPM',
-            '#GAP',
-        ]
+        required_attributes = USDX_REQUIRED
         if required is not None:
             required_attributes = required
 
@@ -139,37 +138,7 @@ class UltrastarFile:
         '#MP3', ...]. If not provided, the default order is used.
         '''
         # Perfect order according to https://usdx.eu/format/
-        usdx_order = [
-            '#VERSION',
-            '#TITLE',
-            '#ARTIST',
-            '#MP3',
-            '#AUDIO',
-            '#BPM',
-            '#GAP',
-            '#COVER',
-            '#BACKGROUND',
-            '#VIDEO',
-            '#VIDEOGAP',
-            '#VOCALS',
-            '#INSTRUMENTAL',
-            '#GENRE',
-            '#TAGS',
-            '#EDITION',
-            '#CREATOR',
-            '#LANGUAGE',
-            '#YEAR',
-            '#START',
-            '#END',
-            '#PREVIEWSTART',
-            '#MEDLEYSTARTBEAT',
-            '#MEDLEYENDBEAT',
-            '#CALCMEDLEY',
-            '#P1',
-            '#P2',
-            '#PROVIDEDBY',
-            '#COMMENT',
-        ]
+        usdx_order = USDX_ALL
         if order is not None:
             usdx_order = order
 
@@ -187,7 +156,8 @@ class UltrastarFile:
                             attributes_numbers: list[str] | None = None,
                             ) -> list[str]:
         '''
-        Validates the file by checking attributes.
+        Validates the file by checking attributes. Checks that files exist and
+        that numbers are valid.
 
         :param attributes_with_paths: A list of attributes that refer to files
         like '#MP3', '#AUDIO', '#COVER', '#BACKGROUND', '#VIDEO', etc. If not
@@ -197,28 +167,10 @@ class UltrastarFile:
         :return: A list of attributes that are faulty.
         '''
         if attributes_with_paths is None:
-            attributes_with_paths = [
-                '#MP3',
-                '#AUDIO',
-                '#VOCALS',
-                '#INSTRUMENTAL',
-                '#COVER',
-                '#BACKGROUND',
-                '#VIDEO',
-            ]
+            attributes_with_paths = USDX_FILES
 
         if attributes_numbers is None:
-            attributes_numbers = [
-                '#BPM',
-                '#GAP',
-                '#VIDEOGAP',
-                '#YEAR',
-                '#START',
-                '#END',
-                '#PREVIEWSTART',
-                '#MEDLEYSTARTBEAT',
-                '#MEDLEYENDBEAT',
-            ]
+            attributes_numbers = USDX_NUMBERS
 
         faulty_attributes = []
 
