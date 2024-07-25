@@ -106,7 +106,7 @@ class UltraStarFile:
             '#VIDEO',
             '#VIDEOGAP',
             '#VOCALS',
-            '#INSTRUMENTAL'
+            '#INSTRUMENTAL',
             '#GENRE',
             '#TAGS',
             '#EDITION',
