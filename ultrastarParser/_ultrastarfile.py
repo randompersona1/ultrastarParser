@@ -1,5 +1,12 @@
 import os
-from usdx_format import USDX_ALL, USDX_FILES, USDX_NUMBERS, USDX_REQUIRED
+import requests
+from ultrastarParser.usdx_format import (
+    USDX_ALL,
+    USDX_FILES,
+    USDX_NUMBERS,
+    USDX_REQUIRED,
+    USDX_URLS
+)
 
 
 class UltrastarFile:
@@ -154,6 +161,7 @@ class UltrastarFile:
     def validate_attributes(self,
                             attributes_with_paths: list[str] | None = None,
                             attributes_numbers: list[str] | None = None,
+                            attributes_urls: list[str] | None = None
                             ) -> list[str]:
         '''
         Validates the file by checking attributes. Checks that files exist and
@@ -172,6 +180,9 @@ class UltrastarFile:
         if attributes_numbers is None:
             attributes_numbers = USDX_NUMBERS
 
+        if attributes_urls is None:
+            attributes_urls = USDX_URLS
+
         faulty_attributes = []
 
         for attr in attributes_with_paths:
@@ -187,6 +198,11 @@ class UltrastarFile:
                     if value < 0:
                         raise ValueError
                 except ValueError:
+                    faulty_attributes.append(attr)
+
+        for attr in attributes_urls:
+            if attr in self.attributes:
+                if not self.get_attribute(attr).startswith('http'):
                     faulty_attributes.append(attr)
 
         return faulty_attributes
@@ -249,6 +265,33 @@ class UltrastarFile:
             return 2
 
         return 0
+
+    def validate_urls(self, urls: list[str] | None = None) -> list[str]:
+        '''
+        Validates that the URLs are active. Checks all URLs in the file. If
+        anything but a 200 status code is returned, the URL is considered
+        faulty. This method can take a long time if many URLs are checked.
+
+        Be aware that a 200 status code does not guarantee that the
+        URL is correct.
+
+        :param urls: A list of attributes that refer to URLs like '#AUDIOURL'.
+        If not provided, the default list is used.
+        :return: A list of attributes with faulty URLs.
+        '''
+        if urls is None:
+            urls = USDX_URLS
+
+        faulty_urls = []
+
+        for attr in urls:
+            if attr in self.attributes:
+                try:
+                    response = requests.get(self.get_attribute(attr))
+                    if response.status_code != 200:
+                        faulty_urls.append(attr)
+                except requests.exceptions.RequestException:
+                    faulty_urls.append(attr)
 
     def reorder_attribute(self, old_index: int, new_index: int) -> None:
         '''
