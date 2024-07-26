@@ -1,5 +1,6 @@
 import os
 import requests
+from enum import Enum
 from tinytag import TinyTag
 from ultrastarParser.usdx_format import (
     USDX_ALL,
@@ -10,12 +11,20 @@ from ultrastarParser.usdx_format import (
 )
 
 
+class ReturnCode(Enum):
+    OK = 0
+    MISSING = 1
+    ERROR = 2
+
+
 class UltrastarFile:
     '''
     Represents an UltraStar song file that conforms to https://usdx.eu/format.
     If the format differs, a best effort is made. Be aware that formats other
     than utf-8 without BOM could cause issues.
     '''
+    # UltraStar format version the parser is primarily compatible with. Refer
+    # to https://usdx.eu/format for more information.
     _VERSION: str = 'v1.1.0'
 
     def __init__(self, path: str, file_encoding: str = 'utf-8') -> None:
@@ -101,15 +110,16 @@ class UltrastarFile:
         return attribute.upper() in self.attributes.keys()
 
     def check(self, required: list[str] = None,
-              ) -> tuple[str, list[str], list[str]]:
+              ) -> tuple[ReturnCode, list[str], list[str]]:
         '''
         Checks whether all required attributes are present according to
         https://usdx.eu/format. If you need custom required attributes,
         you can provide a list of them like ['#TITLE', '#ARTIST', '#MP3', ...].
 
         Returns a specific tuple:
-        - The first element is the status of the file. It can be 'OK',
-        'MISSING', or 'ERROR'.
+        - The first element is the status of the file. It is ReturnCode.OK if
+        all required attributes are present, ReturnCode.MISSING if some are
+        missing, and ReturnCode.ERROR if there are extra attributes.
         - The second element is a list of missing required attributes.
         - The third element is a list of extra attributes.
 
@@ -129,11 +139,11 @@ class UltrastarFile:
                             if value is None]
 
         if len(missing_required) == 0 and len(extra_attributes) == 0:
-            returncode = 'OK'
+            returncode = ReturnCode.OK
         elif len(missing_required) > 0:
-            returncode = 'MISSING'
+            returncode = ReturnCode.MISSING
         else:
-            returncode = 'ERROR'
+            returncode = ReturnCode.ERROR
 
         return returncode, missing_required, extra_attributes
 
@@ -208,26 +218,27 @@ class UltrastarFile:
 
         return faulty_attributes
 
-    def validate_karaoke(self) -> int:
+    def validate_karaoke(self) -> ReturnCode:
         '''
         Validates that the karaoke files (#VOCALS and #INSTRUMENTAL) are
         present and have the same duration as the audio file.
 
-        :return: 0 if the karaoke files are valid, 1 if some files are missing,
-        2 if the files have differend durations.
+        :return: ReturnCode.OK if the karaoke files are valid,
+        ReturnCode.MISSING if some files are missing, ReturnCode.Error
+        if the files have differend durations.
         '''
         audio = self.audio_path()
         vocals = self.get_attribute('#VOCALS')
         instrumental = self.get_attribute('#INSTRUMENTAL')
 
         if audio is None or vocals is None or instrumental is None:
-            return 1
+            return ReturnCode.MISSING
         if not os.path.exists(os.path.join(self.songfolder, audio)):
-            return 1
+            return ReturnCode.MISSING
         if not os.path.exists(os.path.join(self.songfolder, vocals)):
-            return 1
+            return ReturnCode.MISSING
         if not os.path.exists(os.path.join(self.songfolder, instrumental)):
-            return 1
+            return ReturnCode.MISSING
 
         audio_duration = self.audio_duration()
         vocals_duration = TinyTag.get(
@@ -235,9 +246,9 @@ class UltrastarFile:
         instrumental_duration = TinyTag.get(
             os.path.join(self.songfolder, instrumental)).duration
         if not (audio_duration == vocals_duration == instrumental_duration):
-            return 2
+            return ReturnCode.ERROR
 
-        return 0
+        return ReturnCode.OK
 
     def is_duet(self) -> bool:
         '''
