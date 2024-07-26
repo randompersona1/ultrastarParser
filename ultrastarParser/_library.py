@@ -1,7 +1,18 @@
 import os
 import shutil
+import json
+from csv import DictWriter
+from enum import Enum
 from ultrastarParser._ultrastarfile import UltrastarFile
 from ultrastarParser.usdx_format import USDX_ALL
+
+
+class ExportFormat(Enum):
+    '''
+    Enum to define the export format for the library.
+    '''
+    JSON = "json"
+    CSV = "csv"
 
 
 class Library:
@@ -116,7 +127,8 @@ class Library:
         '''
         Returns all attributes in use in the entire library.
 
-        :return: A list of all attributes used in the library.
+        :return: A list of all attributes used in the library sorted to match
+        the USDX format.
         '''
         attributes = set()
         for song in self.songs:
@@ -130,6 +142,51 @@ class Library:
                 sorted_attributes.append(usdx_attribute)
 
         return sorted_attributes
+
+    def export(self,
+               path: str,
+               export_format: ExportFormat,
+               attributes: list[str] | None = None
+               ) -> None:
+        '''
+        Exports the library to a file. Exports only necessary attributes
+        by default.
+
+        :param path: The path to the json file.
+        :param export_format: The format to export the library to. Can be
+        ExportFormat.JSON or ExportFormat.CSV.
+        :param attributes: A list of attributes to export like ['#ARTIST',
+        '#TITLE']. If not provided, all necessary attributes are exported.
+        :raises ValueError: If the export format is not supported.
+        :raises FileNotFoundError: If the path to the file is invalid.
+        :raises PermissionError: If the file cannot be written to.
+        '''
+        if attributes is None:
+            attributes = self.least_common_divisor_attributes()
+
+        export_data = {}
+        for song in self:
+            song_data = {}
+            for attribute in attributes:
+                song_data[attribute] = song.get_attribute(attribute)
+            export_data[song.commonname] = song_data
+
+        match export_format:
+            case ExportFormat.JSON:
+                with open(file=path, mode='w') as output_file:
+                    json.dump(export_data, output_file, indent=4)
+
+            case ExportFormat.CSV:
+                with open(file=path, mode='w') as output_file:
+                    writer = DictWriter(f=output_file,
+                                        fieldnames=attributes,
+                                        dialect='excel')
+                    writer.writeheader()
+                    for song in export_data.values():
+                        writer.writerow(song)
+            case _:
+                raise ValueError(f"Export format '{export_format}"
+                                 f"not supported.")
 
     def __repr__(self) -> str:
         return f'Library(path="{self.path}")'

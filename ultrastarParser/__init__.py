@@ -1,4 +1,4 @@
 from ._ultrastarfile import UltrastarFile
-from ._library import Library
+from ._library import Library, ExportFormat
 
-__all__ = ['UltrastarFile', 'Library']
+__all__ = ['UltrastarFile', 'Library', 'ExportFormat']
