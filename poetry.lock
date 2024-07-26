@@ -143,6 +143,20 @@ socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
+name = "tinytag"
+version = "1.10.1"
+description = "Read music meta data and length of MP3, OGG, OPUS, MP4, M4A, FLAC, WMA and Wave files"
+optional = false
+python-versions = ">=2.7"
+files = [
+    {file = "tinytag-1.10.1-py3-none-any.whl", hash = "sha256:e437654d04c966fbbbdbf807af61eb9759f1d80e4173a7d26202506b37cfdaf0"},
+    {file = "tinytag-1.10.1.tar.gz", hash = "sha256:122a63b836f85094aacca43fc807aaee3290be3de17d134f5f4a08b509ae268f"},
+]
+
+[package.extras]
+tests = ["flake8", "pytest", "pytest-cov"]
+
+[[package]]
 name = "urllib3"
 version = "2.2.2"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -162,4 +176,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10"
-content-hash = "cbbb46aee8e9948df664434f2a52beac759eb0bbea51ce991dc8e7fba070dfa1"
+content-hash = "75af16939fd6dbb9fa056d9c7649943417e29b6df17b71ddcebc45b97e5bb6c0"
