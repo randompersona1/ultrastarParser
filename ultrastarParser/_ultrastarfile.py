@@ -49,7 +49,8 @@ class UltrastarFile:
             lines = file.readlines()
             for line in lines:
                 # Remove BOM character if present
-                if line.startswith('\ufeff') and self.file_encoding == 'utf-8':
+                if (line.startswith('\ufeff') and
+                        self.file_encoding == 'utf-8'):
                     line = line.lstrip('\ufeff')
                 if line.startswith('#') and reading_attributes:
                     attribute = line.split(':')[0].upper()

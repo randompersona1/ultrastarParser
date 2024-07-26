@@ -203,6 +203,9 @@ class Library:
     def __len__(self) -> int:
         return len(self.songs)
 
+    def __getitem__(self, index: int) -> UltrastarFile:
+        return self.songs[index]
+
     def __eq__(self, other) -> bool:
         if isinstance(other, Library):
             return self.songs == other.songs
