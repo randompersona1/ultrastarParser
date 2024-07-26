@@ -247,8 +247,8 @@ class UltrastarFile:
         :return: True if the song is a duet, False otherwise.
         '''
         # Check for P1 and P2 attributes
-        if (self.get_attribute('P1') is not None or
-                self.get_attribute('P2') is not None):
+        if (self.get_attribute('#P1') is not None or
+                self.get_attribute('#P2') is not None):
             return True
 
         # Check for 'P1' or 'P2' in the songtext
