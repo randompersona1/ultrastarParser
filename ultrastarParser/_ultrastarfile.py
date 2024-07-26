@@ -1,5 +1,6 @@
 import os
 import requests
+from tinytag import TinyTag
 from ultrastarParser.usdx_format import (
     USDX_ALL,
     USDX_FILES,
@@ -100,7 +101,7 @@ class UltrastarFile:
         return attribute.upper() in self.attributes.keys()
 
     def check(self, required: list[str] = None,
-              ) -> tuple[str, list[list[str], list[str]]]:
+              ) -> tuple[str, list[str], list[str]]:
         '''
         Checks whether all required attributes are present according to
         https://usdx.eu/format. If you need custom required attributes,
@@ -206,6 +207,37 @@ class UltrastarFile:
                     faulty_attributes.append(attr)
 
         return faulty_attributes
+
+    def validate_karaoke(self) -> int:
+        '''
+        Validates that the karaoke files (#VOCALS and #INSTRUMENTAL) are
+        present and have the same duration as the audio file.
+
+        :return: 0 if the karaoke files are valid, 1 if some files are missing,
+        2 if the files have differend durations.
+        '''
+        audio = self.audio_path()
+        vocals = self.get_attribute('#VOCALS')
+        instrumental = self.get_attribute('#INSTRUMENTAL')
+
+        if audio is None or vocals is None or instrumental is None:
+            return 1
+        if not os.path.exists(os.path.join(self.songfolder, audio)):
+            return 1
+        if not os.path.exists(os.path.join(self.songfolder, vocals)):
+            return 1
+        if not os.path.exists(os.path.join(self.songfolder, instrumental)):
+            return 1
+
+        audio_duration = self.audio_duration()
+        vocals_duration = TinyTag.get(
+            os.path.join(self.songfolder, vocals)).duration
+        instrumental_duration = TinyTag.get(
+            os.path.join(self.songfolder, instrumental)).duration
+        if not (audio_duration == vocals_duration == instrumental_duration):
+            return 2
+
+        return 0
 
     def is_duet(self) -> bool:
         '''
@@ -340,6 +372,32 @@ class UltrastarFile:
             return self.get_attribute('#MP3')
         else:
             return self.get_attribute('#AUDIO')
+
+    def audio_duration(self) -> float | None:
+        '''
+        Returns the duration of the audio file in seconds. If the audio file
+        does not exist, returns None.
+
+        :return: The duration of the audio file in seconds.
+        '''
+        try:
+            tag = TinyTag.get(os.path.join(self.songfolder, self.audio_path()))
+            return tag.duration
+        except FileNotFoundError:
+            return None
+
+    def audio_filesize(self) -> int | None:
+        '''
+        Returns the size of the audio file in bytes. If the audio file does
+        not exist, returns None.
+
+        :return: The size of the audio file in bytes.
+        '''
+        try:
+            tag = TinyTag.get(os.path.join(self.songfolder, self.audio_path()))
+            return tag.filesize
+        except FileNotFoundError:
+            return None
 
     def flush(self):
         '''

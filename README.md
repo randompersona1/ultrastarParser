@@ -14,7 +14,7 @@ Use the package manager of your choice: [pypi](https://pypi.org/project/ultrasta
 ## Features
 
 - get and set attributes using ```UltrastarFile::get_attribute``` and ```UltrastarFile::set_attribute```. Also ```UltrastarFile::attribute_exists```
-- check/validate a file for completeness, existing and correct attributes, duet parameters
+- check/validate a file for completeness, existing and correct attributes, duet parameters and karaoke possibility
 
 ```python
 usf = UltrastarFile('path_to_txt_file')
@@ -22,6 +22,7 @@ check = usf.check()
 faulty_attributes = usf.validate_attributes()
 faulty_duet = usf.validate_duet()
 faulty_urls = usf.validate_urls()
+karaoke = usf.validate_karaoke()
 ```
 
 - automatically reorder attributes in a file with ```UltrastarFile::reorder_auto```
