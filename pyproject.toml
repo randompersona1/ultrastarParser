@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "ultrastarParser"
+version = "0.6.0"
+description = "Parser for Ultrastar text files."
+authors = [
+    "randompersona1 <74961116+randompersona1@users.noreply.github.com>"
+]
+readme = "README.md"
+license = "MIT"
+keywords = ["ultrastar", "parser", "karaoke"]
+homepage = "https://github.com/randompersona1/ultrastarParser"
+packages = [{include = "ultrastarParser", from="src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+requests = "^2.32.3"
+tinytag = "^1.10.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
