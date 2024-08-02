@@ -1,13 +1,14 @@
 from csv import DictWriter
 import os
-import ultrastarparser.song as song
 import json
+
+from ultrastarparser import Song
 
 
 class Library:
     def __init__(self, library_folder: str) -> None:
         self.library_folder = library_folder
-        self.songs: list[song.Song] = []
+        self.songs: list[Song] = []
         self.load_songs()
 
     def load_songs(self) -> None:
@@ -15,9 +16,9 @@ class Library:
         for root, _, files in os.walk(self.library_folder):
             for file in files:
                 if file.endswith(".txt"):
-                    self.songs.append(song.Song(os.path.join(root, file)))
+                    self.songs.append(Song(os.path.join(root, file)))
 
-    def search(self, attribute: str, value: str) -> list[song.Song]:
+    def search(self, attribute: str, value: str) -> list[Song]:
         """
         Search for songs with the given attribute and value like 'ARTIST',
         'Bon Jovi' -> [UltraStarFile, ...]
@@ -26,7 +27,7 @@ class Library:
         :param value: The value of the attribute to search for.
         :return: A list of UltraStarFile objects that match the search.
         """
-        return [song for song in self.songs if song.get_attribute(attribute) == value]
+        return [song for song in self if song.get_attribute(attribute) == value]
 
     def least_common_divisor_attributes(self) -> list[str]:
         """
@@ -67,13 +68,14 @@ class Library:
             attributes = self.least_common_divisor_attributes()
 
         export_data = {}
+        ussong: Song
         for ussong in self:
             song_data = {}
             for attribute in attributes:
                 song_data[attribute] = ussong.get_attribute(attribute)
-            export_data[ussong.commonname] = song_data
+            export_data[ussong.common_name] = song_data
 
-        match export_format.upper():
+        match export_format.lower():
             case "json":
                 with open(file=path, mode="w") as output_file:
                     json.dump(export_data, output_file, indent=4)
@@ -87,18 +89,18 @@ class Library:
                     for ussong in export_data.values():
                         writer.writerow(ussong)
             case _:
-                raise ValueError(f"Export format '{export_format}" f"not supported.")
+                raise ValueError(f"Export format '{export_format}' not supported.")
 
-    def get_songs(self) -> list[song.Song]:
+    def get_songs(self) -> list[Song]:
         return self.songs
 
-    def get_song(self, index: int) -> song.Song:
+    def get_song(self, index: int) -> Song:
         return self.songs[index]
 
     def __iter__(self) -> iter:
         return iter(self.songs)
 
-    def __next__(self) -> song.Song:
+    def __next__(self) -> Song:
         return next(self.songs)
 
     def __str__(self) -> str:
@@ -110,5 +112,5 @@ class Library:
     def __len__(self) -> int:
         return len(self.songs)
 
-    def __getitem__(self, index: int) -> song.Song:
+    def __getitem__(self, index: int) -> Song:
         return self.get_song(index)

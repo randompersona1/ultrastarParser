@@ -18,6 +18,9 @@ class Song:
         self.parse()
 
         self.songfolder = os.path.dirname(txt_file_path)
+        self.common_name = (
+            f"{self.get_attribute("ARTIST")} - {self.get_attribute("TITLE")}"
+        )
 
     def parse(self) -> None:
         """
@@ -124,3 +127,23 @@ class Song:
         :param backup_folder: The folder to backup the song to.
         """
         raise NotImplementedError("This method is not implemented yet.")
+
+    def __str__(self) -> str:
+        return self.common_name
+
+    def __repr__(self) -> str:
+        return f"Song: {self.common_name}"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Song):
+            return False
+        return self.reader_writer == other.reader_writer
+
+    def __hash__(self) -> int:
+        return hash(self.reader_writer)
+
+    def __getattr__(self, name: str) -> str:
+        return self.get_attribute(name)
+
+    def __setattr__(self, name: str, value: str) -> None:
+        self.set_attribute(name, value)

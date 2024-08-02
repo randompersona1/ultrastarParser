@@ -479,11 +479,17 @@ Contains all supported Ultrastar file versions
 
 
 def _detect_version(attributes: dict[str, str]) -> FormatVersion:
-    if (
-        "VERSION" in attributes
-        and FormatVersion(attributes["VERSION"]) in versions.keys()
-    ):
-        return attributes["VERSION"]
+    """
+    Detects the Ultrastar file version based on the attributes present in the file.
+
+    :param attributes: The attributes dict
+    :return: The detected version
+    """
+    # Check if the version is explicitly defined. If so, and we support it, return it.
+    if "VERSION" in attributes:
+        version = FormatVersion(attributes["VERSION"])
+        if version in versions.keys():
+            return version
 
     best_version: FormatVersion = None
     max_optional_matches = -1
@@ -515,6 +521,13 @@ def _detect_version(attributes: dict[str, str]) -> FormatVersion:
 
 
 def ultrastar_version_factory(file: str) -> BaseUltrastarVersion:
+    """
+    Find a version for the Ultrastar file and return an instance of the corresponding class. If no version is found,
+    return an instance of the 1.0.0 version.
+
+    :param file: The Ultrastar file content. Not the file path.
+    :return: An instance of the correct Ultrastar version class
+    """
     attributes = {}
     lines = file.splitlines()
     for line in lines:
@@ -527,20 +540,3 @@ def ultrastar_version_factory(file: str) -> BaseUltrastarVersion:
             break
     version = _detect_version(attributes)
     return versions.get(version)()
-
-
-if __name__ == "__main__":
-    file = """
-#VERSION:
-#TITLE:Sample Song
-#ARTIST:John Doe
-#MP3:sample.mp3
-#BPM:120
-this is the body
-and it has multiple lines
-"""
-    version = ultrastar_version_factory(file)
-    version.parse(file=file)
-    print(version._attributes)
-    print(version._body)
-    print(version._version)
