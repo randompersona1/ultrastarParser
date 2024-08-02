@@ -34,6 +34,10 @@ class FormatVersion:
 
     def __init__(self, version: str | tuple[int, int, int]) -> None:
         if isinstance(version, str):
+            if version.startswith("v") or version.startswith("V"):
+                version = version[1:]
+            if "." not in version:
+                raise ValueError("Invalid version format")
             self.major, self.minor, self.patch = map(int, version.split("."))
         else:
             self.major, self.minor, self.patch = version
