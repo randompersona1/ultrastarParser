@@ -74,7 +74,7 @@ class BaseUltrastarVersion:
         self._attributes: dict[str, str] = {}
         self._body: list[str] = []
 
-        self.primary_audio_attribute: str | None
+        self.primary_audio_attributes: str | None
 
         self.required_attributes: list[str]
         self.optional_attributes: list[str]
@@ -191,9 +191,11 @@ class BaseUltrastarVersion:
         return self._version
 
     def get_primary_audio(self) -> str | None:
-        if self.primary_audio_attribute is None:
+        for key in self.primary_audio_attributes:
+            if self.get_attribute(key) is not None:
+                return self.get_attribute(key)
+        else:
             return None
-        return self.get_attribute(self.primary_audio_attribute)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BaseUltrastarVersion):
@@ -221,7 +223,7 @@ class UltrastarVersion010(BaseUltrastarVersion):
     ]
     optional_attributes = []
 
-    primary_audio_attribute = "MP3"
+    primary_audio_attributes = ["MP3"]
 
 
 class UltrastarVersion020(BaseUltrastarVersion):
@@ -262,7 +264,7 @@ class UltrastarVersion020(BaseUltrastarVersion):
     ]
     attribute_mappings = {}
 
-    primary_audio_attribute = "MP3"
+    primary_audio_attributes = ["MP3"]
 
 
 class UltrastarVersion030(BaseUltrastarVersion):
@@ -303,7 +305,7 @@ class UltrastarVersion030(BaseUltrastarVersion):
     ]
     attribute_mappings = {}
 
-    primary_audio_attribute = "MP3"
+    primary_audio_attributes = ["MP3"]
 
 
 class UltrastarVersion100(BaseUltrastarVersion):
@@ -338,7 +340,7 @@ class UltrastarVersion100(BaseUltrastarVersion):
     ]
     attribute_mappings = {}
 
-    primary_audio_attribute = "MP3"
+    primary_audio_attributes = ["MP3"]
 
 
 class UltrastarVersion110(BaseUltrastarVersion):
@@ -385,7 +387,7 @@ class UltrastarVersion110(BaseUltrastarVersion):
         },
     }
 
-    primary_audio_attribute = "AUDIO"
+    primary_audio_attributes = ["MP3", "AUDIO"]
 
 
 class UltrastarVersion120(BaseUltrastarVersion):
@@ -436,7 +438,7 @@ class UltrastarVersion120(BaseUltrastarVersion):
         },
     }
 
-    primary_audio_attribute = "AUDIO"
+    primary_audio_attributes = ["MP3", "AUDIO"]
 
 
 class UltrastarVersion200(BaseUltrastarVersion):
@@ -488,7 +490,7 @@ class UltrastarVersion200(BaseUltrastarVersion):
         },
     }
 
-    primary_audio_attribute = "AUDIO"
+    primary_audio_attributes = ["MP3", "AUDIO"]
 
 
 versions: dict[FormatVersion, BaseUltrastarVersion] = {
