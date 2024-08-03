@@ -12,13 +12,11 @@ class UltrastarReaderWriter:
         self.song: versions.BaseUltrastarVersion
 
     def read(self) -> None:
-        with open(self.txt_file_path, "rb") as f:
+        with open(self.txt_file_path, "r") as f:
             lines = f.read()
 
-        decoded_lines = lines.decode(encoding=self.encoding)
-
-        self.song = versions.ultrastar_version_factory(decoded_lines)
-        self.song.parse(decoded_lines)
+        self.song = versions.ultrastar_version_factory(lines)
+        self.song.parse(lines)
 
     def write(self) -> None:
         song = ""

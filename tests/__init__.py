@@ -54,7 +54,7 @@ class TestSong(unittest.TestCase):
         song = Song(test_song)
         song.set_attribute("TITLE", "A test title")
         song.flush()
-        mock_file.assert_called_once_with(test_song, "w")
+        mock_file.assert_called_once_with(test_song, "w", encoding="utf-8")
         handle = mock_file()
         handle.write.assert_called()
         song.parse()
