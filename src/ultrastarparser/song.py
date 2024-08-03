@@ -113,6 +113,14 @@ class Song:
                 except versions.VersionChangeError:
                     return
 
+    def get_primary_audio(self) -> str | None:
+        """
+        Get the primary audio file of the song.
+
+        :return: The primary audio file of the song.
+        """
+        return self.reader_writer.song.get_primary_audio()
+
     def flush(self) -> None:
         """
         Flush changes to the song file to the file system. Until this method is
