@@ -10,7 +10,7 @@ Use the package manager of your choice: [pypi](https://pypi.org/project/ultrasta
 
 - Make a backup of the text files. The library currently does not touch any other files. Though I try very hard to fix bugs and use the library myself, I cannot guarantee your files won't go up in flames, particularly if you are using a non-standard file structure or encoding. If something does go wrong, please file an issue.
 - Methods will delete information. For example, comments interlaced with the attributes will not be saved and subsequently overwritten when writing. Changing the version of a song doesn't technically remove information, but could result in your program not being able to parse the file. Programs should disclose what version of the [ultrastar file format](https://usdx.eu/format) they are compatible with, but this might not be correct.
-- Ultrastar librarys should be structured like below. Not following this will probably still work, but is not reccomended and could cause issues in the future.
+- Ultrastar librarys should be structured like below. Not following this will probably still work, but is not recommended and could cause issues in the future.
 
 ```ascii
 library_folder/
