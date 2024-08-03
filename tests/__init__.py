@@ -6,6 +6,25 @@ from ultrastarparser import Song, Library
 
 
 test_song = "tests/4 Non Blondes - What's Up.txt"
+test_song_content = """#VERSION:v1.1.0
+#TITLE:What's Up?
+#ARTIST:4 Non Blondes
+#MP3:4 Non Blondes - What's Up.mp3
+#BPM:264
+#GAP:32340
+#COVER:4 Non Blondes - What's Up [CO].jpg
+#BACKGROUND:4 Non Blondes - What's Up [BG].jpg
+#VIDEO:4 Non Blondes - What's Up.mp4
+#VOCALS:4 Non Blondes - What's Up [VOC].mp3
+#INSTRUMENTAL:4 Non Blondes - What's Up [INSTR].mp3
+#GENRE:Alternative
+#EDITION:SingStar Amped [AU]
+#CREATOR:a224
+#LANGUAGE:English
+#YEAR:1992
+#PREVIEWSTART:87.86
+#MEDLEYSTART:0
+#MEDLEYEND:1193"""
 
 
 class TestSong(unittest.TestCase):
@@ -42,21 +61,31 @@ class TestSong(unittest.TestCase):
         song2 = Song(test_song)
         self.assertEqual(song1, song2)
 
-    @patch("builtins.open", new_callable=mock_open)
+    @patch("builtins.open", new_callable=mock_open, read_data=test_song_content)
     def test_flush(self, mock_file: unittest.mock.MagicMock):
-        # Read the actual file contents
-        with open(test_song, "r") as f:
-            file_contents = f.read()
+        # Initial file content
+        file_contents = test_song_content
 
-        # Mock the file with the read contents
-        mock_file.return_value.read.return_value = file_contents
+        # Function to handle write operations and update the mock file content
+        def write_side_effect(data):
+            nonlocal file_contents
+            file_contents = data
+
+        # Mock the file read and write operations
+        mock_file.return_value.read.side_effect = lambda: file_contents
+        mock_file.return_value.write.side_effect = write_side_effect
 
         song = Song(test_song)
         song.set_attribute("TITLE", "A test title")
         song.flush()
-        mock_file.assert_called_once_with(test_song, "w", encoding="utf-8")
+        mock_file.assert_called_with(test_song, "w", encoding="utf-8")
+
         handle = mock_file()
         handle.write.assert_called()
+
+        # Simulate reading the updated file content
+        mock_file.return_value.read.side_effect = lambda: file_contents
+
         song.parse()
         self.assertEqual(song.get_attribute("TITLE"), "A test title")
 
