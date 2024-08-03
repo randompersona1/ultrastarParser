@@ -131,6 +131,7 @@ class BaseUltrastarVersion:
                 previous_version_class._attributes[k] = v
 
         previous_version_class._version = previous_version_key
+        previous_version_class._attributes["VERSION"] = str(previous_version_key)
         previous_version_class._set_body(self._body)
 
         return previous_version_class
@@ -162,6 +163,7 @@ class BaseUltrastarVersion:
                 next_version_class._attributes[k] = v
 
         next_version_class._version = next_version_key
+        next_version_class._attributes["VERSION"] = str(next_version_key)
         next_version_class._set_body(self._body)
 
         return next_version_class
@@ -189,7 +191,11 @@ class BaseUltrastarVersion:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BaseUltrastarVersion):
             return False
-        return self.get_version() == other.get_version()
+        version_equal: bool = self.get_version() == other.get_version()
+        attributes_equal: bool = self.get_attributes() == other.get_attributes()
+        body_equal: bool = self.get_body() == other.get_body()
+
+        return version_equal and attributes_equal and body_equal
 
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, BaseUltrastarVersion):

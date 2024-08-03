@@ -141,9 +141,3 @@ class Song:
 
     def __hash__(self) -> int:
         return hash(self.reader_writer)
-
-    def __getattr__(self, name: str) -> str:
-        return self.get_attribute(name)
-
-    def __setattr__(self, name: str, value: str) -> None:
-        self.set_attribute(name, value)
