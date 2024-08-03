@@ -18,7 +18,12 @@ jobs:
       - name: Install Poetry
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
-
+      - name: Output current directory
+        run: |
+          pwd
+      - name: List files as tree
+        run: |
+          tree
       - name: Install dependencies
         run: |
           poetry install
