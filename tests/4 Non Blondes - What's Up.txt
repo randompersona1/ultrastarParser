@@ -1,14 +1,14 @@
 #VERSION:v1.1.0
-#TITLE:What’s Up?
+#TITLE:What's Up?
 #ARTIST:4 Non Blondes
-#MP3:4 Non Blondes - What’s Up.mp3
+#MP3:4 Non Blondes - What's Up.mp3
 #BPM:264
 #GAP:32340
-#COVER:4 Non Blondes - What’s Up [CO].jpg
-#BACKGROUND:4 Non Blondes - What’s Up [BG].jpg
-#VIDEO:4 Non Blondes - What’s Up.mp4
-#VOCALS:4 Non Blondes - What’s Up [VOC].mp3
-#INSTRUMENTAL:4 Non Blondes - What’s Up [INSTR].mp3
+#COVER:4 Non Blondes - What's Up [CO].jpg
+#BACKGROUND:4 Non Blondes - What's Up [BG].jpg
+#VIDEO:4 Non Blondes - What's Up.mp4
+#VOCALS:4 Non Blondes - What's Up [VOC].mp3
+#INSTRUMENTAL:4 Non Blondes - What's Up [INSTR].mp3
 #GENRE:Alternative
 #EDITION:SingStar Amped [AU]
 #CREATOR:a224
