@@ -5,7 +5,7 @@ import unittest.mock
 from ultrastarparser import Song, Library
 
 
-test_song = "tests\\4 Non Blondes - What's Up.txt"
+test_song = "tests/4 Non Blondes - What's Up.txt"
 
 
 class TestSong(unittest.TestCase):

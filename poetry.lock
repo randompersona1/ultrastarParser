@@ -12,20 +12,6 @@ files = [
 ]
 
 [[package]]
-name = "charamel"
-version = "1.0.0"
-description = "🌏 Truly Universal Encoding Detection in Python 🌎"
-optional = false
-python-versions = ">=3.6,<4.0"
-files = [
-    {file = "charamel-1.0.0-py3-none-any.whl", hash = "sha256:1f955dda648b37b06caf85fc85fae9b7f7f610e102251543fc5a1351e991732b"},
-    {file = "charamel-1.0.0.tar.gz", hash = "sha256:ce0a81979b7602c5ede8449e836119b045a258222a16512c696852c37b1047e5"},
-]
-
-[package.extras]
-benchmark = ["cchardet (>=2.1.6,<3.0.0)", "chardet (>=3.0.4,<4.0.0)", "charset-normalizer (>=1.3.4,<2.0.0)", "tabulate (>=0.8.7,<0.9.0)", "termcolor (>=1.1.0,<2.0.0)"]
-
-[[package]]
 name = "charset-normalizer"
 version = "3.3.2"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
@@ -190,4 +176,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<4.0"
-content-hash = "c4d4b3bdbd13d8a2dac74aac92b4e6d7a98a694cfa1b448803d07418d3139a6b"
+content-hash = "2286044d6a743890043813f14a530dba7a03647159683ce632098dcb1b6a01d9"

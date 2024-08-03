@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ultrastarParser"
-version = "0.6.3"
+version = "0.6.4"
 description = "Parser for Ultrastar text files."
 authors = [
     "randompersona1 <74961116+randompersona1@users.noreply.github.com>"
@@ -15,8 +15,6 @@ packages = [{include = "ultrastarparser", from="src"}]
 python = ">=3.10,<4.0"
 requests = "^2.32.3"
 tinytag = "^1.10.1"
-charamel = "^1.0.0"
-
 
 [build-system]
 requires = ["poetry-core"]
