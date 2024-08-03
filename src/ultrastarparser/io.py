@@ -12,7 +12,7 @@ class UltrastarReaderWriter:
         self.song: versions.BaseUltrastarVersion
 
     def read(self) -> None:
-        with open(self.txt_file_path, "r") as f:
+        with open(self.txt_file_path, "r", encoding=self.encoding) as f:
             lines = f.read()
 
         # Remove BOM if present. Fuck BOM

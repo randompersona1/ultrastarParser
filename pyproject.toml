@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ultrastarParser"
-version = "0.6.5"
+version = "0.6.6"
 description = "Parser for Ultrastar text files."
 authors = [
     "randompersona1 <74961116+randompersona1@users.noreply.github.com>"
