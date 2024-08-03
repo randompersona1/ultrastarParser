@@ -15,6 +15,9 @@ class UltrastarReaderWriter:
         with open(self.txt_file_path, "r") as f:
             lines = f.read()
 
+        # Remove BOM if present. Fuck BOM
+        lines = lines.removeprefix("\ufeff")
+
         self.song = versions.ultrastar_version_factory(lines)
         self.song.parse(lines)
 
