@@ -30,7 +30,7 @@ class Song:
         """
         self.reader_writer.read()
 
-    def get_attribute(self, attribute: str) -> str:
+    def get_attribute(self, attribute: str) -> str | None:
         """
         Get an attribute from the song.
 

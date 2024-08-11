@@ -27,7 +27,12 @@ class Library:
         :param value: The value of the attribute to search for.
         :return: A list of UltraStarFile objects that match the search.
         """
-        return [song for song in self if song.get_attribute(attribute) == value]
+        return [
+            song
+            for song in self.songs
+            if (attr := song.get_attribute(attribute)) is not None
+            and value.lower() in attr.lower()
+        ]
 
     def least_common_divisor_attributes(self) -> list[str]:
         """

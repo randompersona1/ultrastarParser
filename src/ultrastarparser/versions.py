@@ -89,8 +89,8 @@ class BaseUltrastarVersion:
             return
         headerFinished: bool = False
         for line in lines:
-            line = line.strip()
             if line.startswith("#") and not headerFinished:
+                line = line.strip()
                 key, value = line[1:].split(":", 1)
                 key = key.upper()
                 attributes[key.strip()] = value.strip()
