@@ -24,7 +24,18 @@ test_song_content = """#VERSION:v1.1.0
 #YEAR:1992
 #PREVIEWSTART:87.86
 #MEDLEYSTART:0
-#MEDLEYEND:1193"""
+#MEDLEYEND:1193
+: 0 1 1 Twen
+: 2 1 1 ty 
+: 4 3 1 five 
+: 9 5 1 years 
+- 15
+: 16 3 1 And 
+: 20 3 -8 my 
+: 25 1 1 life 
+: 28 3 1 is 
+: 36 7 4 still 
+- 45"""
 
 
 class TestSong(unittest.TestCase):
@@ -87,7 +98,22 @@ class TestSong(unittest.TestCase):
         mock_file.return_value.read.side_effect = lambda: file_contents
 
         song.parse()
+
+        # Verify that the song title has been updated
         self.assertEqual(song.get_attribute("TITLE"), "A test title")
+        # Verify that the song body has not changed
+        songtext = """: 0 1 1 Twen
+: 2 1 1 ty 
+: 4 3 1 five 
+: 9 5 1 years 
+- 15
+: 16 3 1 And 
+: 20 3 -8 my 
+: 25 1 1 life 
+: 28 3 1 is 
+: 36 7 4 still 
+- 45"""
+        self.assertEqual(song.get_songtext(), songtext)
 
 
 class TestLibrary(unittest.TestCase):
