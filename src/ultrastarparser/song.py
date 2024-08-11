@@ -55,7 +55,7 @@ class Song:
         """
         self.reader_writer.song._attributes[attribute.upper()] = value
 
-    def get_songtext(self) -> str:
+    def get_songtext(self) -> list[str]:
         """
         Get the song text of the song.
 

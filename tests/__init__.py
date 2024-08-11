@@ -102,17 +102,19 @@ class TestSong(unittest.TestCase):
         # Verify that the song title has been updated
         self.assertEqual(song.get_attribute("TITLE"), "A test title")
         # Verify that the song body has not changed
-        songtext = """: 0 1 1 Twen
-: 2 1 1 ty 
-: 4 3 1 five 
-: 9 5 1 years 
-- 15
-: 16 3 1 And 
-: 20 3 -8 my 
-: 25 1 1 life 
-: 28 3 1 is 
-: 36 7 4 still 
-- 45"""
+        songtext = [
+            ": 0 1 1 Twen",
+            ": 2 1 1 ty ",
+            ": 4 3 1 five ",
+            ": 9 5 1 years ",
+            "- 15",
+            ": 16 3 1 And ",
+            ": 20 3 -8 my ",
+            ": 25 1 1 life ",
+            ": 28 3 1 is ",
+            ": 36 7 4 still ",
+            "- 45",
+        ]
         self.assertEqual(song.get_songtext(), songtext)
 
 
