@@ -14,12 +14,15 @@ class Song:
         containing the song file is considered the song folder and should not
         contain any more ultrastar text files.
         """
-        self.reader_writer = io.UltrastarReaderWriter(txt_file_path)
+        self._reader_writer = io.UltrastarReaderWriter(txt_file_path)
         self.parse()
 
         self.songfolder = os.path.dirname(txt_file_path)
+
+        artist = self.get_attribute("ARTIST")
+        title = self.get_attribute("TITLE")
         self.common_name = (
-            f"{self.get_attribute("ARTIST")} - {self.get_attribute("TITLE")}"
+            f"{artist} - {title}" if artist is not None and title is not None else None
         )
 
     def parse(self) -> None:
@@ -28,7 +31,7 @@ class Song:
         Reparsing the song before flushing changes resets the changes made to the
         song.
         """
-        self.reader_writer.read()
+        self._reader_writer.read()
 
     def get_attribute(self, attribute: str) -> str | None:
         """
@@ -36,7 +39,7 @@ class Song:
 
         :param attribute: The attribute to get.
         """
-        return self.reader_writer.song.get_attribute(attribute.upper())
+        return self._reader_writer.song.get_attribute(attribute.upper())
 
     def get_attributes(self) -> dict[str, str]:
         """
@@ -44,7 +47,7 @@ class Song:
 
         :return: A dictionary of all attributes in the song.
         """
-        return self.reader_writer.song.get_attributes()
+        return self._reader_writer.song.get_attributes()
 
     def set_attribute(self, attribute: str, value: str) -> None:
         """
@@ -53,7 +56,7 @@ class Song:
         :param attribute: The attribute to set.
         :param value: The value to set the attribute to.
         """
-        self.reader_writer.song._attributes[attribute.upper()] = value
+        self._reader_writer.song._attributes[attribute.upper()] = value
 
     def get_songtext(self) -> list[str]:
         """
@@ -61,7 +64,7 @@ class Song:
 
         :return: The song text.
         """
-        return self.reader_writer.song.get_body()
+        return self._reader_writer.song.get_body()
 
     def get_version(self) -> str:
         """
@@ -69,7 +72,7 @@ class Song:
 
         :return: The version of the ultrastar song file.
         """
-        return str(self.reader_writer.song.get_version())
+        return str(self._reader_writer.song.get_version())
 
     def set_version(self, dest_version: str) -> None:
         """
@@ -104,12 +107,12 @@ class Song:
         while current_version != dest_version:
             if upgrade:
                 try:
-                    self.reader_writer.song = self.reader_writer.song.upgrade()
+                    self._reader_writer.song = self._reader_writer.song.upgrade()
                 except versions.VersionChangeError:
                     return
             else:
                 try:
-                    self.reader_writer.song = self.reader_writer.song.downgrade()
+                    self._reader_writer.song = self._reader_writer.song.downgrade()
                 except versions.VersionChangeError:
                     return
 
@@ -119,14 +122,14 @@ class Song:
 
         :return: The primary audio file of the song.
         """
-        return self.reader_writer.song.get_primary_audio()
+        return self._reader_writer.song.get_primary_audio()
 
     def flush(self) -> None:
         """
         Flush changes to the song file to the file system. Until this method is
         called, changes are only stored in memory.
         """
-        self.reader_writer.write()
+        self._reader_writer.write()
 
     def backup(self, backup_folder: str) -> None:
         """
@@ -145,7 +148,7 @@ class Song:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Song):
             return False
-        return self.reader_writer == other.reader_writer
+        return self._reader_writer == other._reader_writer
 
     def __hash__(self) -> int:
-        return hash(self.reader_writer)
+        return hash(self._reader_writer)
