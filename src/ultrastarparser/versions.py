@@ -99,6 +99,8 @@ class BaseUltrastarVersion:
             elif (line is None or line.isspace()) and headerFinished:
                 body.append(line)
             elif line == "E":
+                body.append(line)
+                body.append("")
                 break
             else:
                 headerFinished = True

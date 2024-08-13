@@ -35,7 +35,9 @@ test_song_content = """#VERSION:v1.1.0
 : 25 1 1 life 
 : 28 3 1 is 
 : 36 7 4 still 
-- 45"""
+- 45
+E
+"""
 
 
 class TestSong(unittest.TestCase):
@@ -114,6 +116,8 @@ class TestSong(unittest.TestCase):
             ": 28 3 1 is ",
             ": 36 7 4 still ",
             "- 45",
+            "E",
+            "",
         ]
         self.assertEqual(song.get_songtext(), songtext)
 
