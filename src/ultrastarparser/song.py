@@ -10,11 +10,14 @@ class Song:
 
     def __init__(self, txt_file_path: str) -> None:
         """
-        :param txt_file_path: Path to the Ultrastar song file. The folder
-        containing the song file is considered the song folder and should not
-        contain any more ultrastar text files.
+        :param txt_file_path: Path to the Ultrastar song file.
+        
+        The folder containing the song file is considered the song folder
+        and should not contain any more ultrastar text files.
         """
-        self._reader_writer = io.UltrastarReaderWriter(txt_file_path)
+        self.txt_file_path = os.path.normpath(txt_file_path)
+
+        self._reader_writer = io.UltrastarReaderWriter(self.txt_file_path)
         self.parse()
 
         self.songfolder = os.path.dirname(txt_file_path)
